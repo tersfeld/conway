@@ -61,7 +61,7 @@ function generateCells() {
   for (let i = 0; i < gridHeight; i++) {
     scopedCells[i] = [];
     for (let j = 0; j < gridWidth; j++) {
-      scopedCells[i][j] = new Cell(j, i, randomColor, "dead");
+      scopedCells[i][j] = new Cell(j, i, randomColor(), "dead");
     }
   }
   return scopedCells;
@@ -169,7 +169,7 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function placePattern(pattern, color) {
+function placePattern(color) {
   for (let k = 0; k < 5; k++) {
     const x = getRandomInt(4, gridWidth - 4);
     const y = getRandomInt(4, gridHeight - 4);
@@ -199,10 +199,13 @@ function placePattern(pattern, color) {
   }
 }
 
+// main function
+// 1. checking if world updated
+// 2. sending the new tick count to clients
 function worldTick() {
   checkCells();
 
-  console.log("ticking: " + ticks);
+  console.log("Ticking: " + ticks);
   ticks += 1;
   io.sockets.emit("ticks", ticks);
 
@@ -212,29 +215,35 @@ function worldTick() {
 cells = generateCells();
 worldTick();
 
+// Handling a new connection from a client
 io.on("connection", function(socket) {
   const color = randomColor();
 
-  socket.emit("cells", { cells });
-  socket.emit("init", color);
+  // we start by emitting the matrix, and their assigned color
+  socket.emit("init", { cells: cells, color: color });
 
+  // handling some client demands
   // the current player wants to create a new cell at a given coordinates
   socket.on("newCell", function(data) {
     addCell(data, color);
   });
 
+  // handling some client demands
   // the current player wants to place random patterns
-  socket.on("pattern", function(pattern) {
-    placePattern(pattern, color);
+  socket.on("pattern", function() {
+    placePattern(color);
   });
 });
 
-// serv the production files (react app)
-app.use(express.static(path.join(__dirname, "build")));
+// if we are in production mode, we serve everything through this server, UI included
+if (process.env.NODE_ENV === "production") {
+  // serv the production files (react app)
+  app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/*", function(req, res) {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
+  app.get("/*", function(req, res) {
+    res.sendFile(path.join(__dirname, "build", "index.html"));
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 

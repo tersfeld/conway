@@ -16,13 +16,7 @@ export default class App extends Component {
 
   componentDidMount() {
     this.state.socket.on("init", data => {
-      console.log(data);
-      this.setState({ myColor: data });
-    });
-
-    // we listen to the cells topic to get the cell matrix
-    this.state.socket.on("cells", data => {
-      this.setState({ cells: data.cells });
+      this.setState({ myColor: data.color, cells: data.cells });
     });
 
     this.state.socket.on("ticks", data => {
@@ -60,7 +54,7 @@ export default class App extends Component {
           <Text
             fontStyle={`bold`}
             text="Click here to place some patterns"
-            onMouseDown={e => this.state.socket.emit("pattern", "beacon")}
+            onMouseDown={e => this.state.socket.emit("pattern")}
           />
           {this.state.myColor ? (
             <Text
