@@ -5,6 +5,7 @@ import socketIOClient from "socket.io-client";
 
 export default class App extends Component {
   state = {
+    myColor: null,
     cells: [],
     squareSize: 16,
     ticks: 0,
@@ -14,6 +15,11 @@ export default class App extends Component {
   };
 
   componentDidMount() {
+    this.state.socket.on("init", data => {
+      console.log(data);
+      this.setState({ myColor: data });
+    });
+
     // we listen to the cells topic to get the cell matrix
     this.state.socket.on("cells", data => {
       this.setState({ cells: data.cells });
@@ -55,8 +61,17 @@ export default class App extends Component {
             text="Click here to place some patterns"
             onMouseDown={e => this.state.socket.emit("pattern", "beacon")}
           />
-          <Text text={`Ticks: ${this.state.ticks}`} x={200} />
+          {this.state.myColor ? (
+            <Text
+              text={`You are this color`}
+              x={200}
+              fill={this.state.myColor}
+            />
+          ) : (
+            <Text text={"Connecting..."} />
+          )}
 
+          <Text text={`Ticks: ${this.state.ticks}`} x={300} />
           {this.state.cells.map((cellLine, i) => {
             return cellLine.map((cell, j) => {
               if (cell.status === "alive") {

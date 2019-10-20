@@ -217,6 +217,7 @@ io.on("connection", function(socket) {
   const color = randomColor();
 
   socket.emit("cells", { cells });
+  socket.emit("init", color);
 
   // the current player wants to create a new cell at a given coordinates
   socket.on("newCell", function(data) {
