@@ -8,7 +8,7 @@ export default class App extends Component {
     cells: [],
     squareSize: 16,
     ticks: 0,
-    socket: socketIOClient(":5000/")
+    socket: socketIOClient("/")
   };
 
   componentDidMount() {

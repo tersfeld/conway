@@ -8,8 +8,6 @@ const io = require("socket.io")(server);
 var Promise = require("bluebird");
 var randomColor = require("randomcolor");
 
-app.listen(8080);
-
 let cells = [];
 let squareSize = 16; //TODO: we could put an input in the UI and put an API call to update the size of squares
 let tickTime = 1000; //TODO: we could put a slider in the UI and put an API call to update the ticktime
