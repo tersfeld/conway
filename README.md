@@ -38,3 +38,5 @@ git push heroku master -f
 
 ## TODO
 - No tests
+- Better OOP
+- Use a better network protocol (JSON transmitted can be lengthy), maybe changing to flatbuffers.

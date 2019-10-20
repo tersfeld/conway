@@ -67,7 +67,6 @@ function generateCells() {
   return scopedCells;
 }
 
-// with more time, I would have a better OOP approach
 function addCell(coordinates, color) {
   const gridX = Math.floor(coordinates.x / squareSize);
   const gridY = Math.floor(coordinates.y / squareSize);
