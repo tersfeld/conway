@@ -36,7 +36,5 @@ heroku git:remote -a YOUR_HEROKU_APP_NAME
 git push heroku master -f
 ```
 
-
-
-TODO :
+## TODO
 - No tests
