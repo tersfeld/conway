@@ -3,6 +3,8 @@
 
 Deployed here : https://conwayt1.herokuapp.com/
 
+![gif](https://thumbs.gfycat.com/NaughtyPaltryGeese-size_restricted.gif)
+
 ## Launch the server
 
 ```

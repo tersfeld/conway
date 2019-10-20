@@ -127,7 +127,6 @@ function updateCells(updates) {
 
 function checkCells() {
   let updatedCells = [];
-  // let newCells = copyCells(cells);
   for (let i = 0; i < gridHeight; i++) {
     for (let j = 0; j < gridWidth; j++) {
       const { neighbours, neighbours_average_color } = countNeighbours(i, j);

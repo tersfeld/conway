@@ -58,12 +58,14 @@ export default class App extends Component {
       >
         <Layer>
           <Text
+            fontStyle={`bold`}
             text="Click here to place some patterns"
             onMouseDown={e => this.state.socket.emit("pattern", "beacon")}
           />
           {this.state.myColor ? (
             <Text
               text={`You are this color`}
+              fontStyle={`bold`}
               x={200}
               fill={this.state.myColor}
             />
@@ -71,7 +73,7 @@ export default class App extends Component {
             <Text text={"Connecting..."} />
           )}
 
-          <Text text={`Ticks: ${this.state.ticks}`} x={300} />
+          <Text text={`Ticks: ${this.state.ticks}`} x={350} />
           {this.state.cells.map((cellLine, i) => {
             return cellLine.map((cell, j) => {
               if (cell.status === "alive") {
