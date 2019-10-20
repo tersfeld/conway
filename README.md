@@ -19,6 +19,14 @@ yarn
 yarn start_local
 ```
 
+## Deployment using Heroku
+
+```
+heroku login
+heroku git:remote -a YOUR_HEROKU_APP_NAME
+git push heroku master -f
+```
+
 - Using Websockets to sync users with the master server.
 - No session stickiness (refreshing the page is reconnecting as a new player).
 
