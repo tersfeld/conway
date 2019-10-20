@@ -8,7 +8,9 @@ export default class App extends Component {
     cells: [],
     squareSize: 16,
     ticks: 0,
-    socket: socketIOClient("/")
+    socket: socketIOClient(
+      process.env.NODE_ENV === "development" ? ":5000/" : "/"
+    )
   };
 
   componentDidMount() {
@@ -23,11 +25,9 @@ export default class App extends Component {
 
     this.state.socket.on("updates", data => {
       const { updatedCells } = data;
-      // let cells = {state.cells}
       let cells = this.state.cells;
       for (let i = 0; i < updatedCells.length; i++) {
         const { x, y } = updatedCells[i];
-        // console.log(x);
         cells[y][x] = updatedCells[i];
       }
       this.setState({ cells: cells });
