@@ -15,6 +15,15 @@ export default class App extends Component {
   };
 
   componentDidMount() {
+    this.state.socket.on("connect", () => {
+      console.log("You are now connected to the main server !");
+    });
+
+    this.state.socket.on("disconnect", () => {
+      console.log("You have been disconnected to the main server !");
+      this.setState({ myColor: null, cells: [], ticks: 0 });
+    });
+
     this.state.socket.on("init", data => {
       this.setState({ myColor: data.color, cells: data.cells });
     });
@@ -56,7 +65,7 @@ export default class App extends Component {
             text="Click here to place some patterns"
             onMouseDown={e => this.state.socket.emit("pattern")}
           />
-          {this.state.myColor && this.state.socket.connected ? (
+          {this.state.myColor || this.state.socket.connected ? (
             <Text
               text={`Connected ! You are this color`}
               fontStyle={`bold`}
@@ -64,7 +73,12 @@ export default class App extends Component {
               fill={this.state.myColor}
             />
           ) : (
-            <Text text={"Connecting to main server..."} x={200} fill={"red"} />
+            <Text
+              text={"Connecting to main server..."}
+              fontStyle={`bold`}
+              x={200}
+              fill={"red"}
+            />
           )}
 
           <Text text={`Ticks: ${this.state.ticks}`} x={400} />
