@@ -202,6 +202,11 @@ function placePattern(color) {
 // 1. checking if world updated
 // 2. sending the new tick count to clients
 function worldTick() {
+  // Placing random patterns with a random color every 100 ticks
+  if (ticks % 100 === 0) {
+    placePattern(randomColor());
+  }
+
   checkCells();
 
   console.log("Ticking: " + ticks);
