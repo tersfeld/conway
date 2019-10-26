@@ -56,18 +56,18 @@ export default class App extends Component {
             text="Click here to place some patterns"
             onMouseDown={e => this.state.socket.emit("pattern")}
           />
-          {this.state.myColor ? (
+          {this.state.myColor && this.state.socket.connected ? (
             <Text
-              text={`You are this color`}
+              text={`Connected ! You are this color`}
               fontStyle={`bold`}
               x={200}
               fill={this.state.myColor}
             />
           ) : (
-            <Text text={"Connecting..."} />
+            <Text text={"Connecting to main server..."} x={200} fill={"red"} />
           )}
 
-          <Text text={`Ticks: ${this.state.ticks}`} x={350} />
+          <Text text={`Ticks: ${this.state.ticks}`} x={400} />
           {this.state.cells.map((cellLine, i) => {
             return cellLine.map((cell, j) => {
               if (cell.status === "alive") {
