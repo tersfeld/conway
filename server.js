@@ -20,6 +20,9 @@ const gridHeight = Math.floor(windowHeight / squareSize);
 let cells = [];
 let ticks = 0;
 
+const CELL_DEAD = "dead";
+const CELL_ALIVE = "alive";
+
 class Cell {
   constructor(x, y, color, status) {
     this.x = x;
@@ -62,7 +65,7 @@ function generateCells() {
   for (let i = 0; i < gridHeight; i++) {
     scopedCells[i] = [];
     for (let j = 0; j < gridWidth; j++) {
-      scopedCells[i][j] = new Cell(j, i, randomColor(), "dead");
+      scopedCells[i][j] = new Cell(j, i, randomColor(), CELL_DEAD);
     }
   }
   return scopedCells;
@@ -72,7 +75,7 @@ function addCell(coordinates, color) {
   const gridX = Math.floor(coordinates.x / squareSize);
   const gridY = Math.floor(coordinates.y / squareSize);
   if (gridX > 0 && gridX < gridWidth && gridY > 0 && gridY < gridHeight) {
-    cells[gridY][gridX] = new Cell(gridX, gridY, color, "alive");
+    cells[gridY][gridX] = new Cell(gridX, gridY, color, CELL_ALIVE);
     io.sockets.emit("cells", { cells });
   }
 }
@@ -89,7 +92,7 @@ function countNeighbors(y, x) {
       }
       if (i > 0 && i < gridHeight) {
         if (j > 0 && j < gridWidth) {
-          if (cells[i][j].status === "alive") {
+          if (cells[i][j].status === CELL_ALIVE) {
             numberOfNeighbors += 1;
 
             const rgb = hexToRgb(cells[i][j].color);
@@ -132,16 +135,16 @@ function checkCells() {
       const { numberOfNeighbors, neighborsAverageColor } = countNeighbors(i, j);
       let cell = null;
 
-      if (cells[i][j].status === "alive") {
+      if (cells[i][j].status === CELL_ALIVE) {
         if (numberOfNeighbors < 2) {
           // Any live cell with fewer than two live neighbors dies, as if by underpopulation.
-          cell = new Cell(j, i, cells[i][j].color, "dead");
+          cell = new Cell(j, i, cells[i][j].color, CELL_DEAD);
         } else if (numberOfNeighbors === 2 || numberOfNeighbors === 3) {
           // Any live cell with two or three live neighbors lives on to the next generation.
-          cell = new Cell(j, i, cells[i][j].color, "alive");
+          cell = new Cell(j, i, cells[i][j].color, CELL_ALIVE);
         } else if (numberOfNeighbors > 3) {
           // Any live cell with more than three live neighbors dies, as if by overpopulation.
-          cell = new Cell(j, i, cells[i][j].color, "dead");
+          cell = new Cell(j, i, cells[i][j].color, CELL_DEAD);
         }
       } else {
         // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
@@ -151,7 +154,7 @@ function checkCells() {
             neighborsAverageColor.g,
             neighborsAverageColor.b
           );
-          cell = new Cell(j, i, c, "alive");
+          cell = new Cell(j, i, c, CELL_ALIVE);
         }
       }
       if (cell) {
@@ -177,14 +180,14 @@ function placePattern(color) {
     for (let i = y; i < y + 2; i++) {
       for (let j = x; j < x + 2; j++) {
         cells[i][j].color = color;
-        cells[i][j].status = "alive";
+        cells[i][j].status = CELL_ALIVE;
       }
     }
 
     for (let i = y + 2; i < y + 4; i++) {
       for (let j = x + 2; j < x + 4; j++) {
         cells[i][j].color = color;
-        cells[i][j].status = "alive";
+        cells[i][j].status = CELL_ALIVE;
       }
     }
   }
@@ -194,7 +197,7 @@ function placePattern(color) {
     const y = generateRandomInt(4, gridHeight - 4);
     for (let i = y; i < y + 3; i++) {
       cells[i][x].color = color;
-      cells[i][x].status = "alive";
+      cells[i][x].status = CELL_ALIVE;
     }
   }
 }
