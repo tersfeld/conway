@@ -5,19 +5,20 @@ const app = require("express")();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 
-var Promise = require("bluebird");
-var randomColor = require("randomcolor");
+const Promise = require("bluebird");
+const randomColor = require("randomcolor");
 
-let cells = [];
-let squareSize = 16; //TODO: we could put an input in the UI and put an API call to update the size of squares
-let tickTime = 1000; //TODO: we could put a slider in the UI and put an API call to update the ticktime
-let ticks = 0;
+const squareSize = 16; //TODO: we could put an input in the UI and put an API call to update the size of squares
+const tickTime = 1000; //TODO: we could put a slider in the UI and put an API call to update the ticktime
 
 const windowWidth = 800;
 const windowHeight = 400;
 
 const gridWidth = Math.floor(windowWidth / squareSize);
 const gridHeight = Math.floor(windowHeight / squareSize);
+
+let cells = [];
+let ticks = 0;
 
 class Cell {
   constructor(x, y, color, status) {
@@ -76,25 +77,25 @@ function addCell(coordinates, color) {
   }
 }
 
-function countNeighbours(y, x) {
-  let neighbours = 0;
-  let neighbours_average_color = new Color(0, 0, 0);
+function countNeighbors(y, x) {
+  let numberOfNeighbors = 0;
+  let neighborsAverageColor = new Color(0, 0, 0);
 
   for (let i = y - 1; i < y + 2; i++) {
     for (let j = x - 1; j < x + 2; j++) {
       if (i === y && j === x) {
-        // we skip the current cell as it is not a neighbour of itself
+        // we skip the current cell as it is not a neighbor of itself
         continue;
       }
       if (i > 0 && i < gridHeight) {
         if (j > 0 && j < gridWidth) {
           if (cells[i][j].status === "alive") {
-            neighbours += 1;
+            numberOfNeighbors += 1;
 
             const rgb = hexToRgb(cells[i][j].color);
-            neighbours_average_color.r += rgb.r;
-            neighbours_average_color.g += rgb.g;
-            neighbours_average_color.b += rgb.b;
+            neighborsAverageColor.r += rgb.r;
+            neighborsAverageColor.g += rgb.g;
+            neighborsAverageColor.b += rgb.b;
           }
         }
       }
@@ -102,19 +103,19 @@ function countNeighbours(y, x) {
   }
 
   // simple color average
-  if (neighbours !== 0) {
-    neighbours_average_color.r = Math.floor(
-      neighbours_average_color.r / neighbours
+  if (numberOfNeighbors !== 0) {
+    neighborsAverageColor.r = Math.floor(
+      neighborsAverageColor.r / numberOfNeighbors
     );
-    neighbours_average_color.g = Math.floor(
-      neighbours_average_color.g / neighbours
+    neighborsAverageColor.g = Math.floor(
+      neighborsAverageColor.g / numberOfNeighbors
     );
-    neighbours_average_color.b = Math.floor(
-      neighbours_average_color.b / neighbours
+    neighborsAverageColor.b = Math.floor(
+      neighborsAverageColor.b / numberOfNeighbors
     );
   }
 
-  return { neighbours, neighbours_average_color };
+  return { numberOfNeighbors, neighborsAverageColor };
 }
 
 function updateCells(updates) {
@@ -128,27 +129,27 @@ function checkCells() {
   let updatedCells = [];
   for (let i = 0; i < gridHeight; i++) {
     for (let j = 0; j < gridWidth; j++) {
-      const { neighbours, neighbours_average_color } = countNeighbours(i, j);
+      const { numberOfNeighbors, neighborsAverageColor } = countNeighbors(i, j);
       let cell = null;
 
       if (cells[i][j].status === "alive") {
-        if (neighbours < 2) {
-          // Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+        if (numberOfNeighbors < 2) {
+          // Any live cell with fewer than two live neighbors dies, as if by underpopulation.
           cell = new Cell(j, i, cells[i][j].color, "dead");
-        } else if (neighbours === 2 || neighbours === 3) {
-          // Any live cell with two or three live neighbours lives on to the next generation.
+        } else if (numberOfNeighbors === 2 || numberOfNeighbors === 3) {
+          // Any live cell with two or three live neighbors lives on to the next generation.
           cell = new Cell(j, i, cells[i][j].color, "alive");
-        } else if (neighbours > 3) {
-          // Any live cell with more than three live neighbours dies, as if by overpopulation.
+        } else if (numberOfNeighbors > 3) {
+          // Any live cell with more than three live neighbors dies, as if by overpopulation.
           cell = new Cell(j, i, cells[i][j].color, "dead");
         }
       } else {
-        // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-        if (neighbours === 3) {
+        // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+        if (numberOfNeighbors === 3) {
           const c = rgbToHex(
-            neighbours_average_color.r,
-            neighbours_average_color.g,
-            neighbours_average_color.b
+            neighborsAverageColor.r,
+            neighborsAverageColor.g,
+            neighborsAverageColor.b
           );
           cell = new Cell(j, i, c, "alive");
         }
@@ -162,7 +163,7 @@ function checkCells() {
   io.sockets.emit("updates", { updatedCells });
 }
 
-function getRandomInt(min, max) {
+function generateRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -170,8 +171,8 @@ function getRandomInt(min, max) {
 
 function placePattern(color) {
   for (let k = 0; k < 5; k++) {
-    const x = getRandomInt(4, gridWidth - 4);
-    const y = getRandomInt(4, gridHeight - 4);
+    const x = generateRandomInt(4, gridWidth - 4);
+    const y = generateRandomInt(4, gridHeight - 4);
 
     for (let i = y; i < y + 2; i++) {
       for (let j = x; j < x + 2; j++) {
@@ -189,8 +190,8 @@ function placePattern(color) {
   }
 
   for (let k = 0; k < 5; k++) {
-    const x = getRandomInt(4, gridWidth - 4);
-    const y = getRandomInt(4, gridHeight - 4);
+    const x = generateRandomInt(4, gridWidth - 4);
+    const y = generateRandomInt(4, gridHeight - 4);
     for (let i = y; i < y + 3; i++) {
       cells[i][x].color = color;
       cells[i][x].status = "alive";
@@ -241,7 +242,6 @@ io.on("connection", function(socket) {
 
 // if we are in production mode, we serve everything through this server, UI included
 if (process.env.NODE_ENV === "production") {
-  // serv the production files (react app)
   app.use(express.static(path.join(__dirname, "build")));
 
   app.get("/*", function(req, res) {
